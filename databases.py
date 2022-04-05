@@ -35,8 +35,6 @@ class Database:
         if user is None:
             user = {'_id': user_id, 'items': {}}
             self.inventoryDB.insert_one(user)
-        else:
-            pass
         return user
 
     def check_account(self, user_id):
@@ -44,8 +42,6 @@ class Database:
         if user is None:
             user = {'_id': user_id, 'wallet': 0, 'bank': 0}
             self.currency.insert_one(user)
-        else:
-            pass
         return user
 
 
@@ -63,13 +59,11 @@ class Database:
             {'_id': user_id}, {'$set': {'bank': money+int(amount)}})
 
 
-    def get_item_from_inventory (self, user_id):
+    def get_item_from_inventory(self, user_id):
         user = self.inventoryDB.find_one({'_id': user_id})
         if user is None:
             user = {'_id': user_id, 'items': {}}
             self.inventoryDB.insert_one(user)
-        else:
-            pass
         return user
 
 
@@ -81,7 +75,7 @@ class Database:
         except:
             amounts = 0
         amounts += int(amount)
-        items[item] = int(amounts)
+        items[item] = amounts
         self.inventoryDB.update_one(
             {'_id': user_id}, {'$set': {'items': items}})
 
@@ -107,8 +101,8 @@ class Database:
             amount = items[item]
         except:
             amount = 0
-        amount -= int(amount)
-        items[item] = int(amount)
+        amount -= amount
+        items[item] = amount
         self.inventoryDB.update_one(
             {'_id': user_id}, {'$set': {'items': items}})
 
@@ -120,8 +114,6 @@ class Database:
         if user is None:
             user = {'_id': user_id, 'experience': 0, 'level': 1}
             self.leveling.insert_one(user)
-        else:
-            pass
         return user
 
 
@@ -136,9 +128,7 @@ class Database:
         info = self.get_leveling_info(user_id)
         exp = info['experience']
         lvl=0
-        while True:
-            if exp < ((50*(lvl**2))+(50*lvl)):
-                break
+        while not exp < ((50 * (lvl ** 2)) + (50 * lvl)):
             lvl += 1
         if info['level'] < lvl:
             self.leveling.update_one(
@@ -148,17 +138,11 @@ class Database:
     
     def get_Top_Ten_Leveling(self):
         users = self.leveling.find().sort('experience', -1).limit(10)
-        ranks = []
-        for user in users:
-            ranks.append(user)
-        return ranks
+        return list(users)
     
     def get_Top_Ten_Richest(self):
         users = self.currency.find().sort('bank', -1).limit(10)
-        ranks = []
-        for user in users:
-            ranks.append(user)
-        return ranks
+        return list(users)
     
     def get_rank(self, user_id, exp):
         users = self.leveling.find().sort('experience', -1)
@@ -197,18 +181,11 @@ class Database:
     
     def get_Tag_by_Author_ID(self, id):
         tags = self.tags.find({'author': id})
-        res = []
-        for i in tags:
-            res.append(i)
-        return res
+        return list(tags)
     
     def get_Tag_by_name(self, name):
         tags = self.tags.find({})
-        res = []
-        for i in tags:
-            if name.lower() in i['name'].lower():
-                res.append(i)
-        return res
+        return [i for i in tags if name.lower() in i['name'].lower()]
     
     def tag_Exist(self, name):
         tags = self.get_Cache_tags()
@@ -246,18 +223,13 @@ class Database:
         self.logs.insert_one(log)
         
     def get_Logs(self):
-        logs = []
         log = self.logs.find({})
-        for i in log:
-            logs.append(i)
-        return logs
+        return list(log)
     
     
     def update_reaction_roles(self):
         all_roles = self.roles.find({})
-        roles = []
-        for i in all_roles:
-            roles.append(i)
+        roles = list(all_roles)
         self.reactionRoles = roles
     
     def get_reaction_roles(self):
